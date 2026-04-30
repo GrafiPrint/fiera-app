@@ -234,8 +234,12 @@ function ImpostazioniModal({ onClose }) {
 
 function FieraCard({ fiera, onDelete }) {
   const navigate = useNavigate()
-  const totale = fiera.contatti?.[0]?.count ?? 0
-  const conAppt = fiera.appt_count ?? 0
+  // Supabase restituisce contatti come [{count: N}], localStorage come array reale
+  const isSupabase = fiera.contatti?.[0]?.count !== undefined
+  const totale = isSupabase ? (fiera.contatti[0].count ?? 0) : (fiera.contatti?.length ?? 0)
+  const conAppt = fiera.appt_count !== undefined
+    ? fiera.appt_count
+    : (fiera.contatti?.filter(c => c.haAppuntamento)?.length ?? 0)
 
   function formatDate(d) {
     if (!d) return null

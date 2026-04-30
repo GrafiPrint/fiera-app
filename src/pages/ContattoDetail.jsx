@@ -67,17 +67,20 @@ export default function ContattoDetail() {
           return
         }
       }
-      // ── localStorage fallback ────────────────────────────────────────────
-      const fiera = getFiera(id)
-      if (fiera?.contatti) {
-        const c = fiera.contatti.find(c => String(c.id) === String(cid))
-        if (c) {
-          setContatto(c)
-          setFieraNome(fiera.nome || '')
-          setLoadingContatto(false)
-          return
+      // ── localStorage fallback (legge direttamente, evita race condition) ──
+      try {
+        const stored = JSON.parse(localStorage.getItem('fiera-app-data') || '{"fiere":[]}')
+        const fiera = stored.fiere.find(f => String(f.id) === String(id))
+        if (fiera?.contatti) {
+          const c = fiera.contatti.find(c => String(c.id) === String(cid))
+          if (c) {
+            setContatto(c)
+            setFieraNome(fiera.nome || '')
+            setLoadingContatto(false)
+            return
+          }
         }
-      }
+      } catch {}
       setLoadingContatto(false)
     }
     fetchContatto()

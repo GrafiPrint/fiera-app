@@ -108,7 +108,9 @@ export function useFiere() {
   // ── Aggiungi fiera ───────────────────────────────────────────────────────
   async function addFiera({ nome, luogo, dataInizio, dataFine, contatti }) {
     if (!supabaseAttivo) {
-      const nuova = { id: Date.now(), nome, luogo, dataInizio, dataFine, contatti: contatti || [] }
+      // Assegna id numerici ai contatti in localStorage (necessario per navigazione)
+      const contattiConId = (contatti || []).map((c, i) => ({ ...c, id: i }))
+      const nuova = { id: Date.now(), nome, luogo, dataInizio, dataFine, contatti: contattiConId }
       const d = lsLoad(); d.fiere.unshift(nuova); lsSave(d)
       setFiere(d.fiere); return
     }
@@ -144,8 +146,10 @@ export function useFiere() {
   // ── Aggiorna contatti (CSV reload) ───────────────────────────────────────
   async function updateFieraContatti(fieraId, nuoviContatti) {
     if (!supabaseAttivo) {
+      // Assegna id numerici ai contatti in localStorage (necessario per navigazione)
+      const contattiConId = nuoviContatti.map((c, i) => ({ ...c, id: i }))
       const d = lsLoad()
-      d.fiere = d.fiere.map(f => f.id === fieraId ? { ...f, contatti: nuoviContatti } : f)
+      d.fiere = d.fiere.map(f => f.id === fieraId ? { ...f, contatti: contattiConId } : f)
       lsSave(d); setFiere(d.fiere); return
     }
     // Salva i contatti "a freddo" prima di cancellare
