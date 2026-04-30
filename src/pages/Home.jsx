@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Grape, Calendar, Users, Trash2, Upload, X, ChevronRight, Settings, Link2, CheckCircle2, AlertCircle, Loader2, LogOut, Sheet, Share2 } from 'lucide-react'
+import { Plus, Grape, Calendar, Users, Trash2, Upload, X, ChevronRight, Settings, Link2, CheckCircle2, AlertCircle, Loader2, LogOut, Share2 } from 'lucide-react'
 import { useFiere } from '../hooks/useFiere'
 import { useGoogleSheets } from '../hooks/useGoogleSheets'
 import { useUser } from '../context/UserContext'
@@ -107,7 +107,7 @@ function AddFieraModal({ onClose, onSave }) {
           {/* Google Sheets URL — opzione principale */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
-              <Sheet className="w-4 h-4 text-green-600" />
+              <Link2 className="w-4 h-4 text-green-600" />
               URL Google Sheets (CSV pubblicato)
             </label>
             <input
