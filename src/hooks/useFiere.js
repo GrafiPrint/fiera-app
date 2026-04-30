@@ -71,6 +71,9 @@ export function useFiere() {
       .from('fiere')
       .select('*, contatti(count)')
       .order('created_at', { ascending: false })
+    if (error) {
+      console.error('❌ Supabase caricaFiere:', error)
+    }
     if (!error) {
       // Carica anche il count degli appuntamenti per ogni fiera
       const fiereConAppt = await Promise.all((data || []).map(async f => {
@@ -79,7 +82,8 @@ export function useFiere() {
           .select('*', { count: 'exact', head: true })
           .eq('fiera_id', f.id)
           .eq('ha_appuntamento', true)
-        return { ...f, appt_count: count || 0 }
+        // Mappa csv_url → csvUrl per compatibilità con il resto dell'app
+        return { ...f, appt_count: count || 0, csvUrl: f.csv_url || null }
       }))
       setFiere(fiereConAppt)
     }
@@ -116,9 +120,13 @@ export function useFiere() {
     }
     const { data: fiera, error } = await supabase
       .from('fiere')
-      .insert({ nome, luogo: luogo || '', data_inizio: dataInizio || '', data_fine: dataFine || '' })
+      .insert({ nome, luogo: luogo || '', data_inizio: dataInizio || '', data_fine: dataFine || '', csv_url: csvUrl || null })
       .select().single()
-    if (error || !fiera) return
+    if (error || !fiera) {
+      console.error('❌ Supabase addFiera:', error)
+      alert(`Errore Supabase:\n${error?.message || 'Errore sconosciuto'}\n\nCode: ${error?.code || '?'}\n\nControlla la console del browser (F12) per dettagli.`)
+      return
+    }
     if (contatti?.length) {
       const rows = contatti.map(c => contattoToRow(c, fiera.id))
       // Inserisce a blocchi da 100 per evitare limiti Supabase

@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Plus, Grape, Calendar, Users, Trash2, Upload, X, ChevronRight, Settings, Link2, CheckCircle2, AlertCircle, Loader2, LogOut, Share2 } from 'lucide-react'
 import { useFiere } from '../hooks/useFiere'
 import { useGoogleSheets } from '../hooks/useGoogleSheets'
@@ -360,6 +360,33 @@ export default function Home() {
   const { utente, esci } = useUser()
   const [showModal, setShowModal] = useState(false)
   const [showImpostazioni, setShowImpostazioni] = useState(false)
+  const [setupBanner, setSetupBanner] = useState(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // ── Gestisce link di condivisione ?setup=... ────────────────────────────
+  useEffect(() => {
+    const encoded = searchParams.get('setup')
+    if (!encoded) return
+    try {
+      const config = JSON.parse(decodeURIComponent(escape(atob(encoded))))
+      if (!config?.nome) { setSearchParams({}); return }
+      // Rimuovi subito il param dall'URL per evitare re-import
+      setSearchParams({})
+      addFiera({
+        nome:       config.nome,
+        luogo:      config.luogo      || '',
+        dataInizio: config.dataInizio || '',
+        dataFine:   config.dataFine   || '',
+        contatti:   [],
+        csvUrl:     config.csvUrl     || null,
+      })
+      setSetupBanner(`✓ Fiera "${config.nome}" aggiunta da link!`)
+      setTimeout(() => setSetupBanner(null), 4000)
+    } catch (e) {
+      console.error('Setup param error:', e)
+      setSearchParams({})
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSave(data) {
     await addFiera(data)
@@ -407,6 +434,13 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* Banner setup da link */}
+      {setupBanner && (
+        <div className="bg-green-500 text-white text-sm font-medium px-5 py-3 text-center">
+          {setupBanner}
+        </div>
+      )}
 
       {/* Content */}
       <div className="px-4 py-5 max-w-lg mx-auto">
