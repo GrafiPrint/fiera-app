@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Grape, Calendar, Users, Trash2, Upload, X, ChevronRight, Settings, Link2, CheckCircle2, AlertCircle, Loader2, LogOut, Sheet } from 'lucide-react'
+import { Plus, Grape, Calendar, Users, Trash2, Upload, X, ChevronRight, Settings, Link2, CheckCircle2, AlertCircle, Loader2, LogOut, Sheet, Share2 } from 'lucide-react'
 import { useFiere } from '../hooks/useFiere'
 import { useGoogleSheets } from '../hooks/useGoogleSheets'
 import { useUser } from '../context/UserContext'
@@ -259,14 +259,36 @@ function ImpostazioniModal({ onClose }) {
   )
 }
 
+function generaLinkCondivisione(fiera) {
+  const config = {
+    nome: fiera.nome,
+    luogo: fiera.luogo || '',
+    dataInizio: fiera.dataInizio || fiera.data_inizio || '',
+    dataFine: fiera.dataFine || fiera.data_fine || '',
+    csvUrl: fiera.csvUrl || null,
+  }
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(config))))
+  return `${window.location.origin}${window.location.pathname}?setup=${encoded}`
+}
+
 function FieraCard({ fiera, onDelete }) {
   const navigate = useNavigate()
+  const [copiato, setCopiato] = useState(false)
   // Supabase restituisce contatti come [{count: N}], localStorage come array reale
   const isSupabase = fiera.contatti?.[0]?.count !== undefined
   const totale = isSupabase ? (fiera.contatti[0].count ?? 0) : (fiera.contatti?.length ?? 0)
   const conAppt = fiera.appt_count !== undefined
     ? fiera.appt_count
     : (fiera.contatti?.filter(c => c.haAppuntamento)?.length ?? 0)
+
+  function condividi(e) {
+    e.stopPropagation()
+    const link = generaLinkCondivisione(fiera)
+    navigator.clipboard.writeText(link).then(() => {
+      setCopiato(true)
+      setTimeout(() => setCopiato(false), 2500)
+    })
+  }
 
   function formatDate(d) {
     if (!d) return null
@@ -312,7 +334,14 @@ function FieraCard({ fiera, onDelete }) {
         </div>
       </button>
 
-      <div className="border-t border-gray-50 px-5 py-2.5 flex justify-end">
+      <div className="border-t border-gray-50 px-5 py-2.5 flex justify-between items-center">
+        <button
+          onClick={condividi}
+          className="flex items-center gap-1.5 text-xs py-1 transition-colors text-green-500 hover:text-green-700"
+        >
+          <Share2 className="w-3.5 h-3.5" />
+          {copiato ? '✓ Link copiato!' : 'Condividi su altri dispositivi'}
+        </button>
         <button
           onClick={() => onDelete(fiera.id)}
           className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-600 py-1"
