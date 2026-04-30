@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 const LS_KEY = 'fiera-app-sheets-url'
 
@@ -19,7 +19,8 @@ export function useGoogleSheets() {
     if (!url) return false
     try {
       setStato('syncing')
-      const res = await fetch(url, { method: 'GET', mode: 'no-cors' })
+      // no-cors: non possiamo leggere la risposta ma la richiesta arriva
+      await fetch(url, { method: 'GET', mode: 'no-cors' })
       setStato('ok')
       return true
     } catch (e) {
@@ -29,18 +30,20 @@ export function useGoogleSheets() {
     }
   }
 
-  async function sincronizza({ email, azienda, note, visitato, fiera }) {
-    if (!url || !email) return { ok: false, motivo: 'URL o email mancante' }
+  // Sincronizza nota/visitato/biglietto con Google Sheets via Apps Script
+  // I parametri possibili: { email, azienda, note, visitato, visitatoDa, biglietto, fiera }
+  async function sincronizza(payload) {
+    if (!url || !payload.email) return { ok: false, motivo: 'URL o email mancante' }
 
     setStato('syncing')
     try {
-      // Usiamo no-cors perché Apps Script risponde con Content-Type text/plain
-      // ma la chiamata viene comunque eseguita (fire & forget)
+      // mode: 'no-cors' → la chiamata viene eseguita ma la risposta è opaca (fire & forget)
+      // Apps Script riceve e salva comunque i dati
       await fetch(url, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ email, azienda, note, visitato, fiera }),
+        body: JSON.stringify(payload),
       })
       setStato('ok')
       setUltimoErrore(null)

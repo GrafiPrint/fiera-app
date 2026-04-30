@@ -51,6 +51,8 @@ export const FIELD_MAP = {
   // Colonne scritte da Apps Script (sync bidirezionale con Sheets)
   '*Note App':                      'notePersonali',
   '*Visitato App':                  'visitatoApp',
+  '*Visitato Da':                   'visitatoDa',
+  '*Biglietto Visita':              'biglietto',
 
   // Vecchio formato (con asterischi) — retrocompatibilità
   'First Name':                     'nome',
@@ -110,12 +112,10 @@ export function parseCSVText(text) {
     contact.giornoNum      = normalizeGiorno(contact.giorno)
     contact.oraNorm        = normalizeOra(contact.ora)
     contact.haAppuntamento = !!contact.giornoNum
-    // Converti visitatoApp (stringa dal foglio) → boolean
-    if (contact.visitatoApp) {
-      contact.visitato   = contact.visitatoApp.includes('✓')
-      contact.visitatoDa = contact.visitatoApp.includes('✓')
-        ? (contact.visitatoApp.replace('✓ Visitato', '').trim() || '')
-        : ''
+    // Converti visitatoApp (colonna *Visitato App: ✓ o vuoto) → boolean
+    if (contact.visitatoApp !== undefined) {
+      contact.visitato = String(contact.visitatoApp).includes('✓')
+      if (!contact.visitato) contact.visitatoDa = ''
       delete contact.visitatoApp
     }
     return contact

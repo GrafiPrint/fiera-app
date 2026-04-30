@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-import { ArrowLeft, MapPin, Clock, Phone, Mail, User, Tag, FileText, History, Building2, CheckCircle2, XCircle, Save, RefreshCw, WifiOff, Mic, MicOff, Square, Pencil, X } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { ArrowLeft, MapPin, Clock, Phone, Mail, User, Tag, FileText, History, Building2, CheckCircle2, XCircle, Save, RefreshCw, WifiOff, Mic, MicOff, Square, Pencil, X, Camera, Loader2 } from 'lucide-react'
 import { useFiere, rowToContatto } from '../hooks/useFiere'
 import { supabase, supabaseAttivo } from '../lib/supabase'
 import { useGoogleSheets } from '../hooks/useGoogleSheets'
@@ -92,6 +92,70 @@ export default function ContattoDetail() {
   const [noteSaved, setNoteSaved] = useState(false)
   const [syncStato, setSyncStato] = useState('idle')
 
+  // Fotocamera biglietto da visita
+  const bigliettoRef = useRef()
+  const [scanningBiglietto, setScanningBiglietto] = useState(false)
+  const [bigliettoPreview, setBigliettoPreview] = useState(null)
+
+  async function handleBiglietto(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+
+    // Mostra preview
+    const url = URL.createObjectURL(file)
+    setBigliettoPreview(url)
+    setScanningBiglietto(true)
+
+    try {
+      // Carica Tesseract.js dal CDN (solo quando serve)
+      if (!window.Tesseract) {
+        await new Promise((resolve, reject) => {
+          const s = document.createElement('script')
+          s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'
+          s.onload = resolve
+          s.onerror = reject
+          document.head.appendChild(s)
+        })
+      }
+
+      const { data: { text } } = await window.Tesseract.recognize(file, 'ita+eng', {
+        logger: () => {},
+      })
+
+      const testoOCR = text.trim()
+      if (testoOCR) {
+        const sezione = `\n\nBIGLIETTO DA VISITA:\n${testoOCR}`
+        const nuoveNote = (noteText + sezione).trim()
+        setNoteText(nuoveNote)
+        setNoteSaved(false)
+
+        // Salva su Sheets se connesso
+        if (connesso && contatto?.email) {
+          setSyncStato('syncing')
+          const res = await sincronizza({
+            email: contatto.email,
+            azienda: contatto.azienda,
+            note: nuoveNote,
+            visitato: contatto.visitato,
+            visitatoDa: contatto.visitatoDa || '',
+            biglietto: testoOCR,
+            fiera: fieraNome,
+          })
+          setSyncStato(res.ok !== false ? 'ok' : 'error')
+          setTimeout(() => setSyncStato('idle'), 3000)
+        }
+      }
+    } catch (err) {
+      console.error('OCR error:', err)
+      // Fallback: aggiungi solo il testo template
+      const sezione = `\n\nBIGLIETTO DA VISITA:\nNome: \nAzienda: \nTelefono: \nEmail: \nNote: `
+      setNoteText(prev => (prev + sezione).trim())
+    } finally {
+      setScanningBiglietto(false)
+    }
+  }
+
   // Riferimento editor
   const [editingRif, setEditingRif] = useState(false)
   const [rifValue, setRifValue] = useState('')
@@ -143,7 +207,13 @@ export default function ContattoDetail() {
     updateContatto(id, cid, { visitato: nuovoStato, visitatoDa })
     if (connesso && contatto.email) {
       setSyncStato('syncing')
-      const res = await sincronizza({ email: contatto.email, azienda: contatto.azienda, visitato: nuovoStato, fiera: fieraNome })
+      const res = await sincronizza({
+        email: contatto.email,
+        azienda: contatto.azienda,
+        visitato: nuovoStato,
+        visitatoDa: nuovoStato ? utente : '',
+        fiera: fieraNome,
+      })
       setSyncStato(res.ok !== false ? 'ok' : 'error')
       setTimeout(() => setSyncStato('idle'), 3000)
     }
@@ -156,7 +226,14 @@ export default function ContattoDetail() {
     setTimeout(() => setNoteSaved(false), 2500)
     if (connesso && contatto.email) {
       setSyncStato('syncing')
-      const res = await sincronizza({ email: contatto.email, azienda: contatto.azienda, note: noteText, visitato: contatto.visitato, fiera: fieraNome })
+      const res = await sincronizza({
+        email: contatto.email,
+        azienda: contatto.azienda,
+        note: noteText,
+        visitato: contatto.visitato,
+        visitatoDa: contatto.visitatoDa || '',
+        fiera: fieraNome,
+      })
       setSyncStato(res.ok !== false ? 'ok' : 'error')
       setTimeout(() => setSyncStato('idle'), 3000)
     }
@@ -368,8 +445,43 @@ export default function ContattoDetail() {
             </p>
           )}
 
+          {/* Preview biglietto */}
+          {bigliettoPreview && (
+            <div className="mt-2 relative">
+              <img src={bigliettoPreview} alt="Biglietto" className="w-full rounded-xl object-contain max-h-32" />
+              <button
+                onClick={() => setBigliettoPreview(null)}
+                className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+
           {/* Pulsanti azione */}
           <div className="flex gap-2 mt-3">
+            {/* Fotocamera biglietto */}
+            <input
+              ref={bigliettoRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={handleBiglietto}
+            />
+            <button
+              onClick={() => bigliettoRef.current?.click()}
+              disabled={scanningBiglietto || voice.stato === 'listening'}
+              title="Scatta foto biglietto da visita"
+              className="flex items-center justify-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-2.5 rounded-xl text-sm font-semibold active:scale-95 transition-transform hover:bg-gray-200 disabled:opacity-50"
+            >
+              {scanningBiglietto
+                ? <Loader2 className="w-4 h-4 animate-spin text-wine-600" />
+                : <Camera className="w-4 h-4 text-wine-600" />
+              }
+              {scanningBiglietto ? 'OCR...' : 'Biglietto'}
+            </button>
+
             {/* Microfono */}
             {voice.supportato && (
               voice.stato === 'listening' ? (

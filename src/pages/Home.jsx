@@ -260,12 +260,15 @@ function ImpostazioniModal({ onClose }) {
 }
 
 function generaLinkCondivisione(fiera) {
+  // Include anche l'URL Apps Script (se configurato) per condividerlo automaticamente
+  const appsScriptUrl = localStorage.getItem('fiera-app-sheets-url') || null
   const config = {
     nome: fiera.nome,
     luogo: fiera.luogo || '',
     dataInizio: fiera.dataInizio || fiera.data_inizio || '',
     dataFine: fiera.dataFine || fiera.data_fine || '',
     csvUrl: fiera.csvUrl || null,
+    appsScriptUrl,
   }
   const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(config))))
   return `${window.location.origin}${window.location.pathname}?setup=${encoded}`
@@ -372,6 +375,10 @@ export default function Home() {
       if (!config?.nome) { setSearchParams({}); return }
       // Rimuovi subito il param dall'URL per evitare re-import
       setSearchParams({})
+      // Se il link include l'URL Apps Script, lo salva in localStorage automaticamente
+      if (config.appsScriptUrl) {
+        localStorage.setItem('fiera-app-sheets-url', config.appsScriptUrl)
+      }
       addFiera({
         nome:       config.nome,
         luogo:      config.luogo      || '',

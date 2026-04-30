@@ -35,10 +35,19 @@ export default function FieraDetail() {
   const { getFiera, updateFieraContatti, caricaContatti } = useFiere()
   const fiera = getFiera(id)
 
-  // Contatti: query diretta a Supabase, senza hook intermedi
+  // Contatti: query diretta, senza hook intermedi
   const [contatti, setContatti] = useState([])
   const [loadingContatti, setLoadingContatti] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
+
+  // Auto-refresh quando la schermata torna visibile (es. si torna da ContattoDetail)
+  useEffect(() => {
+    function handleVisibility() {
+      if (!document.hidden) setRefreshKey(k => k + 1)
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [])
 
   useEffect(() => {
     if (!id) return
