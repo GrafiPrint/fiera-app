@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\Users\\\\GrafiPrint\\\\Desktop\\\\VINITALY 2026\\\\APP\")",
+      "Bash(cmd /c \"dir \\\\\"C:\\\\Users\\\\GrafiPrint\\\\Desktop\\\\VINITALY 2026\\\\APP\\\\\"\")",
+      "Bash(npm --version)",
+      "Bash(npm create:*)",
+      "Bash(npx create-vite@latest . --template react --force)",
+      "Bash(printf 'y\\\\n')",
+      "Bash(npx create-vite@latest . --template react)",
+      "Bash(npm install:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(pip show:*)",
+      "Bash(pip install:*)",
+      "Bash(python -c ':*)",
+      "Bash(where pdftoppm:*)",
+      "Bash(where magick:*)",
+      "Bash(where gs:*)",
+      "Bash(where mupdf:*)",
+      "Bash(cmd /c \"mkdir \\\\\"C:\\\\Users\\\\GrafiPrint\\\\Desktop\\\\VINITALY 2026\\\\APP\\\\public\\\\maps\\\\\"\")",
+      "Bash(magick -density 150 \"C:\\\\Users\\\\GrafiPrint\\\\Downloads\\\\mappa-quartiere-vinitaly-2026.pdf\" \"C:\\\\Users\\\\GrafiPrint\\\\Desktop\\\\VINITALY 2026\\\\APP\\\\public\\\\maps\\\\mappa-vinitaly.jpg\")",
+      "Bash(cmd /c \"if not exist \\\\\"C:\\\\Users\\\\GrafiPrint\\\\Desktop\\\\VINITALY 2026\\\\APP\\\\public\\\\maps\\\\\" mkdir \\\\\"C:\\\\Users\\\\GrafiPrint\\\\Desktop\\\\VINITALY 2026\\\\APP\\\\public\\\\maps\\\\\"\")",
+      "Bash(magick -density 150 \"C:\\\\Users\\\\GrafiPrint\\\\Downloads\\\\mappa-quartiere-vinitaly-2026.pdf[0]\" \"C:\\\\Users\\\\GrafiPrint\\\\Desktop\\\\VINITALY 2026\\\\APP\\\\public\\\\maps\\\\mappa-vinitaly.jpg\")",
+      "Bash(dir \"C:\\\\Users\\\\GrafiPrint\\\\Desktop\\\\VINITALY 2026\\\\APP\\\\public\\\\\" 2>&1)",
+      "Bash(magick -density 150 \"C:/Users/GrafiPrint/Downloads/mappa-quartiere-vinitaly-2026.pdf[0]\" \"C:/Users/GrafiPrint/Desktop/VINITALY 2026/APP/public/maps/mappa-vinitaly.jpg\")",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(ipconfig)",
+      "Bash(npx vite:*)",
+      "Bash(npm run:*)",
+      "Bash(curl -s -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYWZ3YnRtZGFwb3B3a2x1aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MzgxMTEsImV4cCI6MjA5MTMxNDExMX0.gsoPi0ky_LmcQ3YFHQCtwKfb-kJBmSXMeM72VC9S8UQ\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYWZ3YnRtZGFwb3B3a2x1aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MzgxMTEsImV4cCI6MjA5MTMxNDExMX0.gsoPi0ky_LmcQ3YFHQCtwKfb-kJBmSXMeM72VC9S8UQ\" -H \"Prefer: count=exact\" -H \"Range: 0-0\" -I \"https://ubafwbtmdapopwkluiyz.supabase.co/rest/v1/contatti?select=id\")",
+      "Bash(curl -s -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYWZ3YnRtZGFwb3B3a2x1aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MzgxMTEsImV4cCI6MjA5MTMxNDExMX0.gsoPi0ky_LmcQ3YFHQCtwKfb-kJBmSXMeM72VC9S8UQ\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYWZ3YnRtZGFwb3B3a2x1aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MzgxMTEsImV4cCI6MjA5MTMxNDExMX0.gsoPi0ky_LmcQ3YFHQCtwKfb-kJBmSXMeM72VC9S8UQ\" \"https://ubafwbtmdapopwkluiyz.supabase.co/rest/v1/fiere?select=id,nome\")",
+      "Bash(curl -s \"https://ubafwbtmdapopwkluiyz.supabase.co/rest/v1/contatti?select=azienda,nome,cognome&limit=3\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYWZ3YnRtZGFwb3B3a2x1aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MzgxMTEsImV4cCI6MjA5MTMxNDExMX0.gsoPi0ky_LmcQ3YFHQCtwKfb-kJBmSXMeM72VC9S8UQ\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYWZ3YnRtZGFwb3B3a2x1aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MzgxMTEsImV4cCI6MjA5MTMxNDExMX0.gsoPi0ky_LmcQ3YFHQCtwKfb-kJBmSXMeM72VC9S8UQ\")",
+      "Bash(curl -s \"https://ubafwbtmdapopwkluiyz.supabase.co/rest/v1/contatti?select=azienda,nome,cognome,fiera_id&limit=3\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYWZ3YnRtZGFwb3B3a2x1aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MzgxMTEsImV4cCI6MjA5MTMxNDExMX0.gsoPi0ky_LmcQ3YFHQCtwKfb-kJBmSXMeM72VC9S8UQ\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYWZ3YnRtZGFwb3B3a2x1aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MzgxMTEsImV4cCI6MjA5MTMxNDExMX0.gsoPi0ky_LmcQ3YFHQCtwKfb-kJBmSXMeM72VC9S8UQ\")",
+      "Bash(curl -s \"https://ubafwbtmdapopwkluiyz.supabase.co/rest/v1/contatti?select=dati&limit=1&fiera_id=eq.15\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYWZ3YnRtZGFwb3B3a2x1aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MzgxMTEsImV4cCI6MjA5MTMxNDExMX0.gsoPi0ky_LmcQ3YFHQCtwKfb-kJBmSXMeM72VC9S8UQ\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViYWZ3YnRtZGFwb3B3a2x1aXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MzgxMTEsImV4cCI6MjA5MTMxNDExMX0.gsoPi0ky_LmcQ3YFHQCtwKfb-kJBmSXMeM72VC9S8UQ\")",
+      "Bash(ls dist/assets/*.js)"
+    ]
+  }
+}
