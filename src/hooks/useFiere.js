@@ -106,11 +106,11 @@ export function useFiere() {
   }, [caricaFiere])
 
   // ── Aggiungi fiera ───────────────────────────────────────────────────────
-  async function addFiera({ nome, luogo, dataInizio, dataFine, contatti }) {
+  async function addFiera({ nome, luogo, dataInizio, dataFine, contatti, csvUrl }) {
     if (!supabaseAttivo) {
       // Assegna id numerici ai contatti in localStorage (necessario per navigazione)
       const contattiConId = (contatti || []).map((c, i) => ({ ...c, id: i }))
-      const nuova = { id: Date.now(), nome, luogo, dataInizio, dataFine, contatti: contattiConId }
+      const nuova = { id: Date.now(), nome, luogo, dataInizio, dataFine, csvUrl: csvUrl || null, contatti: contattiConId }
       const d = lsLoad(); d.fiere.unshift(nuova); lsSave(d)
       setFiere(d.fiere); return
     }

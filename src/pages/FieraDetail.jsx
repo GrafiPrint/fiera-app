@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Search, Upload, SlidersHorizontal, X, Calendar, Loader2, Plus, UserPlus } from 'lucide-react'
 import { useFiere, rowToContatto } from '../hooks/useFiere'
 import { supabase, supabaseAttivo } from '../lib/supabase'
-import { normalizeOra } from '../utils/csvParser'
+import { normalizeOra, parseCSVText } from '../utils/csvParser'
 import { extractPadiglione } from '../utils/padiglione'
 import AppuntamentoCard from '../components/AppuntamentoCard'
 import CSVMapper from '../components/CSVMapper'
@@ -47,17 +47,44 @@ export default function FieraDetail() {
 
     async function fetchContatti() {
       try {
-        // caricaContatti gestisce sia Supabase che localStorage automaticamente
-        const data = await caricaContatti(id)
-        setContatti(data)
+        // Se la fiera ha un URL Google Sheets, carica sempre dati freschi
+        if (fiera?.csvUrl) {
+          const res = await fetch(fiera.csvUrl)
+          const text = await res.text()
+          const parsed = parseCSVText(text)
+          // Carica note/visitato locali e unisci per email
+          const locali = await caricaContatti(id)
+          const localiByEmail = {}
+          locali.forEach(c => { if (c.email) localiByEmail[c.email.toLowerCase()] = c })
+          const merged = parsed.map((c, i) => {
+            const old = c.email ? localiByEmail[c.email.toLowerCase()] : null
+            return {
+              ...c,
+              id: i,
+              notePersonali: c.notePersonali || old?.notePersonali || '',
+              visitato:      c.visitato      || old?.visitato      || false,
+              visitatoDa:    c.visitatoDa    || old?.visitatoDa    || '',
+            }
+          })
+          await updateFieraContatti(fiera.id, merged)
+          setContatti(merged)
+        } else {
+          const data = await caricaContatti(id)
+          setContatti(data)
+        }
       } catch (e) {
         console.error('fetchContatti error:', e)
+        // Fallback ai dati locali in caso di errore di rete
+        try {
+          const data = await caricaContatti(id)
+          setContatti(data)
+        } catch {}
       }
       setLoadingContatti(false)
     }
 
     fetchContatti()
-  }, [id, refreshKey])
+  }, [id, refreshKey, fiera?.csvUrl])
 
   const [search, setSearch] = useState('')
   const [giornoFiltro, setGiornoFiltro] = useState('tutti')

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Grape, Calendar, Users, Trash2, Upload, X, ChevronRight, Settings, Link2, CheckCircle2, AlertCircle, Loader2, LogOut } from 'lucide-react'
+import { Plus, Grape, Calendar, Users, Trash2, Upload, X, ChevronRight, Settings, Link2, CheckCircle2, AlertCircle, Loader2, LogOut, Sheet } from 'lucide-react'
 import { useFiere } from '../hooks/useFiere'
 import { useGoogleSheets } from '../hooks/useGoogleSheets'
 import { useUser } from '../context/UserContext'
@@ -11,6 +11,7 @@ function AddFieraModal({ onClose, onSave }) {
   const [dataInizio, setDataInizio] = useState('')
   const [dataFine, setDataFine] = useState('')
   const [luogo, setLuogo] = useState('')
+  const [csvUrl, setCsvUrl] = useState('')
   const [csvFile, setCsvFile] = useState(null)
   const [showMapper, setShowMapper] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -19,21 +20,22 @@ function AddFieraModal({ onClose, onSave }) {
   function handleCsvSelect(e) {
     const f = e.target.files?.[0] || null
     setCsvFile(f)
+    setCsvUrl('')   // file ha priorità sull'URL
     e.target.value = ''
   }
 
   async function handleSave() {
     if (!nome.trim()) return
     if (csvFile) {
-      setShowMapper(true)  // Apre CSVMapper prima di salvare
+      setShowMapper(true)
     } else {
-      await doSave([])
+      await doSave([], csvUrl.trim() || null)
     }
   }
 
-  async function doSave(contatti) {
+  async function doSave(contatti, url = null) {
     setLoading(true)
-    await onSave({ nome: nome.trim(), dataInizio, dataFine, luogo: luogo.trim(), contatti })
+    await onSave({ nome: nome.trim(), dataInizio, dataFine, luogo: luogo.trim(), contatti, csvUrl: url })
     setLoading(false)
   }
 
@@ -41,7 +43,7 @@ function AddFieraModal({ onClose, onSave }) {
     return (
       <CSVMapper
         file={csvFile}
-        onConfirm={(contacts) => { setShowMapper(false); doSave(contacts) }}
+        onConfirm={(contacts) => { setShowMapper(false); doSave(contacts, null) }}
         onCancel={() => setShowMapper(false)}
       />
     )
@@ -102,28 +104,53 @@ function AddFieraModal({ onClose, onSave }) {
             />
           </div>
 
+          {/* Google Sheets URL — opzione principale */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">CSV Appuntamenti</label>
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className={`w-full border-2 border-dashed rounded-xl px-4 py-4 flex flex-col items-center gap-2 transition-colors ${
-                csvFile ? 'border-wine-400 bg-wine-50' : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <Upload className={`w-6 h-6 ${csvFile ? 'text-wine-600' : 'text-gray-400'}`} />
-              <span className={`text-sm ${csvFile ? 'text-wine-700 font-medium' : 'text-gray-500'}`}>
-                {csvFile ? csvFile.name : 'Carica file CSV'}
-              </span>
-            </button>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
+              <Sheet className="w-4 h-4 text-green-600" />
+              URL Google Sheets (CSV pubblicato)
+            </label>
             <input
-              ref={fileRef}
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={handleCsvSelect}
+              type="url"
+              value={csvUrl}
+              onChange={e => { setCsvUrl(e.target.value); setCsvFile(null) }}
+              placeholder="https://docs.google.com/spreadsheets/d/e/..."
+              className={`w-full border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 ${
+                csvUrl ? 'border-green-400 bg-green-50' : 'border-gray-200'
+              }`}
             />
+            {csvUrl && (
+              <p className="text-xs text-green-600 mt-1">✓ I contatti si aggiorneranno automaticamente dal foglio</p>
+            )}
           </div>
+
+          {/* Separatore */}
+          {!csvUrl && (
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-400">oppure carica un file</span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+          )}
+
+          {/* Upload file CSV — opzione alternativa */}
+          {!csvUrl && (
+            <div>
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className={`w-full border-2 border-dashed rounded-xl px-4 py-4 flex flex-col items-center gap-2 transition-colors ${
+                  csvFile ? 'border-wine-400 bg-wine-50' : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <Upload className={`w-6 h-6 ${csvFile ? 'text-wine-600' : 'text-gray-400'}`} />
+                <span className={`text-sm ${csvFile ? 'text-wine-700 font-medium' : 'text-gray-500'}`}>
+                  {csvFile ? csvFile.name : 'Carica file CSV'}
+                </span>
+              </button>
+              <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleCsvSelect} />
+            </div>
+          )}
         </div>
 
         <button

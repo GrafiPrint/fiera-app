@@ -48,6 +48,10 @@ export const FIELD_MAP = {
   'Considerazioni':                 'considerazioni',
   'Tag':                            'tag',
 
+  // Colonne scritte da Apps Script (sync bidirezionale con Sheets)
+  '*Note App':                      'notePersonali',
+  '*Visitato App':                  'visitatoApp',
+
   // Vecchio formato (con asterischi) — retrocompatibilità
   'First Name':                     'nome',
   'Last Name':                      'cognome',
@@ -91,6 +95,31 @@ export function normalizeOra(ora) {
   // già HH:MM
   if (/^\d{1,2}:\d{2}$/.test(trimmed)) return trimmed.padStart(5, '0')
   return trimmed
+}
+
+// ── Parsa testo CSV già caricato (es. da fetch URL Google Sheets) ────────────
+export function parseCSVText(text) {
+  const results = Papa.parse(text, { header: true, skipEmptyLines: true })
+  return results.data.map((row, idx) => {
+    const contact = { id: idx }
+    for (const [csvKey, appKey] of Object.entries(FIELD_MAP)) {
+      if (row[csvKey] === undefined) continue
+      contact[appKey] = String(row[csvKey]).trim()
+    }
+    contact.importanzaNum  = importanzaToNumber(contact.importanza || contact.premiumCollection)
+    contact.giornoNum      = normalizeGiorno(contact.giorno)
+    contact.oraNorm        = normalizeOra(contact.ora)
+    contact.haAppuntamento = !!contact.giornoNum
+    // Converti visitatoApp (stringa dal foglio) → boolean
+    if (contact.visitatoApp) {
+      contact.visitato   = contact.visitatoApp.includes('✓')
+      contact.visitatoDa = contact.visitatoApp.includes('✓')
+        ? (contact.visitatoApp.replace('✓ Visitato', '').trim() || '')
+        : ''
+      delete contact.visitatoApp
+    }
+    return contact
+  })
 }
 
 export function parseCSV(file) {
